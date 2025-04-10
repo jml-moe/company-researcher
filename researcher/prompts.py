@@ -8,17 +8,17 @@ QUERY STRUCTURE:
 - Keep the query concise (4-7 words)
 - Be specific about the information needed
 - Include the full company name
-- Include the year if applicable (e.g., "2024" or "FY 2023")
+- Include the year if applicable (e.g., "2025" or "FY 2024")
 - Avoid unnecessary words like "information about" or "data on"
 
 EXAMPLES BY CATEGORY:
 
 Financial:
-- "{company_name} annual report 2023"
-- "{company_name} quarterly earnings Q1 2024"
+- "{company_name} annual report 2024"
+- "{company_name} quarterly earnings Q1 2025"
 - "{company_name} revenue breakdown by segment"
 - "{company_name} profit margin trends"
-- "{company_name} cash flow statement 2023"
+- "{company_name} cash flow statement 2024"
 
 Leadership:
 - "{company_name} executive leadership team"
