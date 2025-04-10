@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Researcher</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  </head>
+  <body>
+    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem">
+      <h1 class="text-zinc-50 text-3xl">Company Researcher</h1>
+      <form method="post" class="space-y-2">
+        {% csrf_token %}
+        <input type="text" placeholder="Company Name" name="company_name" class="border border-zinc-600 p-2 rounded-lg w-full block" />
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded-lg block w-full">Research</button>
+      </form>
+      <div id="content"></div>
+      <div id="notifications"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        const type = data.message.type;
+        const content = data.message.content;
+
+        if (type === "notification") {
+          const notifContainer = document.getElementById("notifications");
+
+          const newNotif = document.createElement("div");
+          newNotif.innerHTML = content;
+          notifContainer.append(newNotif);
+        }
+
+        if (type === "business_profile") {
+          document.getElementById("content").innerHTML = marked.parse(content);
+          document.getElementById("notifications").innerHTML = "";
+        }
+      };
+
+      ws.onopen = () => {
+        console.log("Connected");
+      };
+
+      ws.onclose = () => {
+        console.log("Disconnected");
+      };
+    </script>
+  </body>
+</html>
