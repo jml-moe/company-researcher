@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Market Trend | Company Researcher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>Add Market Trend</h1>
+                <p class="text-muted">Track a new industry trend that might affect companies</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'market_trends' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Trends
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="trend_name" class="form-label">Trend Name</label>
+                                <input type="text" class="form-control" id="trend_name" name="trend_name" required 
+                                       placeholder="e.g., Shift to Renewable Energy">
+                            </div>
+                            <div class="mb-3">
+                                <label for="industry" class="form-label">Industry</label>
+                                <input type="text" class="form-control" id="industry" name="industry" required
+                                       placeholder="e.g., Technology, Finance, Energy">
+                            </div>
+                            <div class="mb-3">
+                                <label for="impact_level" class="form-label">Impact Level (1-5)</label>
+                                <select class="form-select" id="impact_level" name="impact_level">
+                                    <option value="1">1 - Very Low Impact</option>
+                                    <option value="2">2 - Low Impact</option>
+                                    <option value="3" selected>3 - Moderate Impact</option>
+                                    <option value="4">4 - High Impact</option>
+                                    <option value="5">5 - Very High Impact</option>
+                                </select>
+                                <div class="form-text">How significant is this trend's impact on companies in this industry?</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date">
+                                <div class="form-text">When did this trend start becoming significant?</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="5" required
+                                          placeholder="Describe the trend, its implications, and how it might affect companies in this industry..."></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Add Market Trend
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

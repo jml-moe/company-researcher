@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Workspaces | Company Researcher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .workspace-card {
+            transition: transform 0.2s;
+        }
+        .workspace-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-4">My Workspaces</h1>
+                <p class="text-muted">Manage your investment research workspaces</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'workspace_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Workspace
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if workspaces %}
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for workspace in workspaces %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm workspace-card">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ workspace.name }}</h5>
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-building"></i> {{ workspace.get_companies_count }} companies
+                                </p>
+                                <p class="text-muted">
+                                    <i class="fas fa-calendar"></i> Created {{ workspace.created_at|date:"M d, Y" }}
+                                </p>
+                                <a href="{% url 'workspace_detail' workspace_id=workspace.id %}" class="btn btn-primary mt-auto">
+                                    Open Workspace
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-4">
+                <h4>No workspaces yet</h4>
+                <p>Create your first workspace to start researching companies.</p>
+                <a href="{% url 'workspace_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Your First Workspace
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

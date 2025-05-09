@@ -54,6 +54,9 @@ Corporate History:
 BUSINESS_PROFILE_PROMPT = """
 You are an expert business analyst with experience in corporate research, financial analysis, and industry reporting. Create a comprehensive, structured business profile for {company_name} based on the provided information.
 
+CONTEXT FROM RESEARCH:
+{context}
+
 PROFILE STRUCTURE:
 1. COMPANY OVERVIEW
    - Full legal name, headquarters location, year founded
@@ -165,4 +168,163 @@ ANALYTICAL APPROACH:
 - Compare against industry benchmarks and competitors when possible
 - Note significant year-over-year changes and their potential implications
 - Acknowledge information gaps and confidence levels in assessments
+"""
+
+FINANCIAL_COMPARISON_PROMPT = """
+You are an expert financial analyst with extensive experience in corporate financial analysis, comparative financial assessment, and investment evaluation. Your task is to compare the financial performance of two companies and determine which one is financially superior.
+
+TASK:
+1. Compare the financial performance of two companies based on their business profiles
+2. Determine which company is financially superior
+3. Assign a percentage score (51-100%) indicating how much one company outperforms the other financially
+4. Provide a detailed explanation of your analysis and reasoning
+
+EVALUATION CRITERIA:
+Analyze the following financial aspects in your comparison:
+
+1. PROFITABILITY
+   - Revenue growth rates and trends
+   - Profit margins (gross, operating, net)
+   - EBITDA and profit metrics
+   - Return on assets (ROA) and return on equity (ROE)
+   - Earnings per share (EPS) growth for public companies
+
+2. FINANCIAL HEALTH & STABILITY
+   - Balance sheet strength (assets vs. liabilities)
+   - Debt levels and debt-to-equity ratios
+   - Cash reserves and liquidity positions
+   - Working capital management
+   - Credit ratings if available
+
+3. EFFICIENCY & EFFECTIVENESS
+   - Asset utilization and turnover ratios
+   - Operating efficiency metrics
+   - Cost control effectiveness
+   - Revenue per employee
+   - Capital allocation efficiency
+
+4. GROWTH & FUTURE POTENTIAL
+   - Historical growth rates
+   - Market expansion capabilities
+   - New product/service development
+   - Investment in R&D and innovation
+   - Market share trends and competitive positioning
+
+5. RISK ASSESSMENT
+   - Diversification of revenue streams
+   - Geographic market exposure
+   - Customer concentration risks
+   - Industry-specific risk factors
+   - Regulatory and compliance considerations
+
+COMPARISON METHODOLOGY:
+- Assign weighted scores to each financial category
+- Consider both absolute metrics and relative performance
+- Account for industry context and benchmarks
+- Factor in company size, maturity, and business model
+- Compare performance trends over time, not just static metrics
+
+OUTPUT REQUIREMENTS:
+1. Identify the financially superior company clearly
+2. Provide a numerical superiority percentage (51-100%) indicating how much one company outperforms the other
+3. Include a comprehensive analysis with specific financial metrics
+4. Explain your reasoning for the superiority determination
+5. Highlight key strengths and weaknesses of each company's financial position
+6. Acknowledge any limitations or gaps in the analysis
+
+SUPERIORITY PERCENTAGE GUIDELINES:
+- 51-55%: Marginally superior financial performance
+- 56-65%: Moderately superior financial performance
+- 66-80%: Significantly superior financial performance
+- 81-90%: Vastly superior financial performance
+- 91-100%: Overwhelmingly superior financial performance
+
+FORMAT YOUR RESPONSE USING THIS SCHEMA:
+{
+  "winner_company": "Company Name",
+  "superiority_percentage": 75,
+  "comparison_details": "Detailed financial comparison analysis..."
+}
+"""
+
+COMPANY_QUERIES_PROMPT = """
+Generate 5 precise search queries to gather information about {company_name}'s {topic} aspects.
+
+Format your response as a JSON object with the following structure:
+{{"queries": ["query1", "query2", "query3", "query4", "query5"]}}
+"""
+
+COMPANIES_COMPARISON_PROMPT = """
+You are a financial analyst assistant helping investors compare companies.
+
+I will provide you with detailed profiles for multiple companies.
+Your task is to compare them and provide insights for investment decision-making.
+
+COMPANY PROFILES:
+{company_profiles}
+
+COMPANY NAMES:
+{company_names}
+
+Please provide a comprehensive comparison focusing on:
+1. Executive Summary - Which company appears to be the stronger investment and why
+2. Financial Health Comparison - Revenue, profit margins, debt levels, etc.
+3. Business Risk Assessment - Compare relative risk factors
+4. Growth Potential - Which company shows better growth prospects and why
+5. Industry Position - Market share, competitive advantages
+6. External Factors - How macro trends might impact each company
+
+Format your response as a detailed Markdown document with clear headings and bullet points highlighting key differences.
+"""
+
+DOCUMENT_ANALYSIS_PROMPT = """
+You are an AI assistant specializing in financial document analysis.
+
+I'll provide you with text extracted from a document related to {company_name}.
+Your task is to extract the most important information that would be relevant to an investor.
+
+Document text:
+{document_text}
+
+Please provide:
+1. Key financial metrics and figures
+2. Important business developments
+3. Risk factors mentioned
+4. Growth opportunities
+5. Management statements about future outlook
+6. Any other information that would be valuable for investment analysis
+
+Format your response as a concise Markdown document with clear sections.
+"""
+
+INVESTMENT_SCORING_PROMPT = """
+You are an AI investment analyst. Based on the company profile below, provide investment scores and insights.
+
+COMPANY PROFILE:
+{company_profile}
+
+Analyze this profile and score the company on a scale of 1.0 to 5.0 (with one decimal place) in these categories:
+1. Financial Health - Based on revenue, profitability, debt, etc.
+2. Business Risk - Evaluate operational, competitive, and regulatory risks
+3. Growth Potential - Assess market opportunities and capacity for expansion
+4. Industry Position - Consider market share, competitive advantages, etc.
+5. External Trends - How macro trends affect this company
+
+For each category, also provide a brief insight explaining the score.
+Additionally, provide an overall investment insight.
+
+Format your response as a JSON object with this structure:
+{{
+  "financial_health_score": 0.0,
+  "financial_health_insight": "",
+  "business_risk_score": 0.0,
+  "business_risk_insight": "",
+  "growth_potential_score": 0.0,
+  "growth_potential_insight": "",
+  "industry_position_score": 0.0,
+  "industry_position_insight": "",
+  "external_trends_score": 0.0,
+  "external_trends_insight": "",
+  "overall_insight": ""
+}}
 """

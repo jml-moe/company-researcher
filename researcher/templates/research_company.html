@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Company | Company Researcher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-4">Research New Company</h1>
+                <p class="text-muted">Add a company to workspace "{{ workspace.name }}"</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'workspace_detail' workspace_id=workspace.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Workspace
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Company Details</h5>
+                        <form method="POST" action="{% url 'research_company' workspace_id=workspace.id %}">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                <input type="text" class="form-control form-control-lg" id="company_name" name="company_name" 
+                                       placeholder="e.g., Tesla, Apple, Microsoft" required>
+                                <div class="form-text">Enter the full company name for best results</div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-info-circle me-2"></i>What happens next?</h5>
+                                <p class="mb-0">Our AI will automatically research information about this company from public sources, analyze it, and generate investment insights including:</p>
+                                <ul class="mt-2">
+                                    <li>Company profile with key information</li>
+                                    <li>Investment scoring (1-5) across multiple categories</li>
+                                    <li>Risk assessment and growth potential analysis</li>
+                                </ul>
+                                <p class="mb-0">This process may take a minute or two. You'll be redirected to your workspace once started.</p>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-search"></i> Start Research
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

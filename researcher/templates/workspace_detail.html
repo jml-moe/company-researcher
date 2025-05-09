@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ workspace.name }} | Company Researcher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .company-card {
+            transition: transform 0.2s;
+        }
+        .company-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .score-indicator {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        .score-1 { background-color: #dc3545; }
+        .score-2 { background-color: #fd7e14; }
+        .score-3 { background-color: #ffc107; }
+        .score-4 { background-color: #20c997; }
+        .score-5 { background-color: #198754; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-4">{{ workspace.name }}</h1>
+                <p class="text-muted">Workspace for investment research</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'workspace_list' %}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left"></i> All Workspaces
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteWorkspaceModal">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Companies in this workspace</h5>
+                        <p class="card-text">
+                            You can add up to 3 companies in this workspace.
+                            Currently: <span class="badge bg-primary">{{ companies|length }}/3</span>
+                        </p>
+                        <div class="d-flex mb-4">
+                            {% if companies|length < 3 %}
+                                <a href="{% url 'research_company' workspace_id=workspace.id %}" class="btn btn-primary me-2">
+                                    <i class="fas fa-search me-1"></i> Research New Company
+                                </a>
+                            {% endif %}
+                            
+                            {% if companies|length >= 2 %}
+                                <a href="{% url 'compare_companies' workspace_id=workspace.id %}" class="btn btn-success me-2">
+                                    <i class="fas fa-exchange-alt me-1"></i> Compare Companies
+                                </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'chat_view' workspace_id=workspace.id %}" class="btn btn-info me-2">
+                                <i class="fas fa-comment-dots me-1"></i> Company Assistant
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Compare Companies</h5>
+                        <p class="card-text">Compare up to 3 companies side by side with investment insights.</p>
+                        <a href="{% url 'compare_companies' workspace_id=workspace.id %}" class="btn btn-success">
+                            <i class="fas fa-chart-bar"></i> Compare
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if companies %}
+            <h2 class="mb-4">Companies</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for company in companies %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm company-card">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="card-title">{{ company.company_name }}</h5>
+                                    {% if company.overall_score > 0 %}
+                                        <div class="score-indicator score-{{ company.overall_score|floatformat:0 }}">
+                                            {{ company.overall_score|floatformat:1 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if company.industry %}
+                                    <p class="text-muted">
+                                        <i class="fas fa-industry"></i> {{ company.industry }}
+                                    </p>
+                                {% endif %}
+                                <div class="mb-3">
+                                    {% if company.financial_health_score > 0 %}
+                                        <div class="mb-2">
+                                            <span class="fw-bold">Financial Health:</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary" 
+                                                    role="progressbar" 
+                                                    style="width: {{ company.financial_health_score|floatformat:1|default:0 }}0%" 
+                                                    aria-valuenow="{{ company.financial_health_score|floatformat:1 }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="5">
+                                                    {{ company.financial_health_score|floatformat:1 }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'company_detail' workspace_id=workspace.id profile_id=company.id %}" class="btn btn-primary mt-auto">
+                                    View Details
+                                </a>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <small class="text-muted">Added {{ company.created_at|timesince }} ago</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-4">
+                <h4>No companies added yet</h4>
+                <p>Start by adding a company to your workspace.</p>
+                <a href="{% url 'research_company' workspace_id=workspace.id %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Your First Company
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Delete Workspace Modal -->
+    <div class="modal fade" id="deleteWorkspaceModal" tabindex="-1" aria-labelledby="deleteWorkspaceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteWorkspaceModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the workspace "{{ workspace.name }}"?</p>
+                    <p class="text-danger">This will also delete all companies and data associated with this workspace. This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{% url 'workspace_delete' workspace_id=workspace.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Workspace</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

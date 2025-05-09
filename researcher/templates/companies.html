@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Company Profiles</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+</head>
+
+<body>
+    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem">
+        <h1>Company Profiles</h1>
+        <div class="grid">
+            <a href="/" class="secondary">Back to Home</a>
+            <a href="/compare/" class="contrast">Compare Profiles</a>
+        </div>
+
+        <article>
+            {% if companies %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Company Name</th>
+                        <th>Date Generated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in companies %}
+                    <tr>
+                        <td>{{ company.company_name }}</td>
+                        <td>{{ company.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <a href="/view/{{ company.id }}/" class="outline">View Profile</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No company profiles have been generated yet.</p>
+            <a href="/" role="button">Generate a Company Profile</a>
+            {% endif %}
+        </article>
+    </div>
+</body>
+
+</html>

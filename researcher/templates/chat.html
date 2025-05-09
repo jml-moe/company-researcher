@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot | Company Researcher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .chat-container {
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        .user-message {
+            margin-left: auto;
+            background-color: #007bff;
+            color: white;
+            border-radius: 15px 15px 0 15px;
+            padding: 10px 15px;
+        }
+        .assistant-message {
+            margin-right: auto;
+            background-color: #e9ecef;
+            color: #212529;
+            border-radius: 15px 15px 15px 0;
+            padding: 10px 15px;
+        }
+        .assistant-message p {
+            margin-bottom: 8px;
+        }
+        .assistant-message ul, .assistant-message ol {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        .assistant-message li {
+            margin-bottom: 5px;
+        }
+        .assistant-message strong {
+            font-weight: 600;
+        }
+        .assistant-message h3, .assistant-message h4 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .chat-input {
+            display: flex;
+            margin-top: 15px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px 0 0 4px;
+        }
+        .chat-input button {
+            border-radius: 0 4px 4px 0;
+        }
+        .company-card {
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .company-card:hover {
+            transform: translateY(-3px);
+        }
+        .suggestions {
+            margin-top: 10px;
+        }
+        .suggestion-btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+        }
+        .typing-indicator {
+            display: none;
+            margin-right: auto;
+            background-color: #e9ecef;
+            color: #6c757d;
+            border-radius: 15px;
+            padding: 8px 15px;
+            margin-bottom: 15px;
+        }
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #6c757d;
+            border-radius: 50%;
+            margin-right: 3px;
+            animation: wave 1.3s linear infinite;
+        }
+        .dot:nth-child(2) {
+            animation-delay: -1.1s;
+        }
+        .dot:nth-child(3) {
+            animation-delay: -0.9s;
+        }
+        @keyframes wave {
+            0%, 60%, 100% { transform: initial; }
+            30% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>Company Assistant</h1>
+                <p class="text-muted">Ask questions about your companies in workspace "{{ workspace.name }}"</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'workspace_detail' workspace_id=workspace.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Workspace
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-9">
+                <div class="card shadow">
+                    <div class="card-body chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            {% if chat_history %}
+                                {% for message in chat_history %}
+                                    <div class="message {% if message.is_user_message %}user-message{% else %}assistant-message{% endif %}">
+                                        {{ message.message }}
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="assistant-message">
+                                    Hello! I'm your company research assistant. I can help answer questions about your companies. What would you like to know?
+                                </div>
+                            {% endif %}
+
+                            <!-- Typing indicator -->
+                            <div class="typing-indicator" id="typing-indicator">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Ask a question about your companies...">
+                            <button id="send-button" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="suggestions">
+                            <p class="text-muted mb-1">Suggested questions:</p>
+                            <button class="btn btn-sm btn-outline-secondary suggestion-btn" onclick="askSuggestion(this)">What are the key risks for these companies?</button>
+                            <button class="btn btn-sm btn-outline-secondary suggestion-btn" onclick="askSuggestion(this)">Which company has the best growth potential?</button>
+                            <button class="btn btn-sm btn-outline-secondary suggestion-btn" onclick="askSuggestion(this)">Compare the financial health of these companies.</button>
+                            <button class="btn btn-sm btn-outline-secondary suggestion-btn" onclick="askSuggestion(this)">What are the recent market trends affecting these companies?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card sticky-top" style="top: 15px;">
+                    <div class="card-header">
+                        <h5 class="mb-0">Companies</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if companies %}
+                            {% for company in companies %}
+                                <div class="card company-card" onclick="askAboutCompany('{{ company.company_name }}')">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title mb-0">{{ company.company_name }}</h6>
+                                        <small class="text-muted">{{ company.industry|default:"Industry N/A" }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted">No companies in this workspace yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const typingIndicator = document.getElementById('typing-indicator');
+            
+            // Scroll to bottom of chat
+            scrollToBottom();
+            
+            // Add event listeners
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage(message, true);
+                
+                // Clear input
+                chatInput.value = '';
+                
+                // Show typing indicator
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                // Send message to server
+                fetch('{% url "chat_message" workspace_id=workspace.id %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    if (data.status === 'success') {
+                        // Add assistant message to chat
+                        addMessage(data.response, false);
+                    } else {
+                        // Add error message
+                        addMessage("I'm sorry, I couldn't process your request: " + data.message, false);
+                    }
+                })
+                .catch(error => {
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    // Add error message
+                    addMessage("I'm sorry, there was an error processing your request.", false);
+                    console.error('Error:', error);
+                });
+            }
+            
+            function addMessage(content, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(isUser ? 'user-message' : 'assistant-message');
+                
+                if (isUser) {
+                    // For user messages, just use text
+                    messageDiv.textContent = content;
+                } else {
+                    // For assistant messages, format the content
+                    content = formatContent(content);
+                    messageDiv.innerHTML = content;
+                }
+                
+                // Insert before typing indicator
+                chatMessages.insertBefore(messageDiv, typingIndicator);
+                
+                scrollToBottom();
+            }
+            
+            function formatContent(content) {
+                // Convert markdown bold to HTML
+                content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Add proper line breaks
+                content = content.replace(/\n/g, '<br>');
+                
+                // Format numbered lists (1. Item)
+                content = content.replace(/(\d+\.\s.*?)(?=\n\d+\.|\n\n|$)/gs, '<li>$1</li>');
+                content = content.replace(/<li>(.*?)<\/li>/gs, function(match) {
+                    if (match.includes('<li>1.')) {
+                        return '<ol>' + match;
+                    }
+                    return match;
+                });
+                content = content.replace(/<\/li>\n<ol>/g, '</li><ol>');
+                content = content.replace(/(<\/li>)(?!\n<li>)/g, '$1</ol>');
+                
+                // Format bullet lists (• Item or - Item)
+                content = content.replace(/([•\-]\s.*?)(?=\n[•\-]|\n\n|$)/gs, '<li>$1</li>');
+                content = content.replace(/<li>([•\-])/g, '<li>');
+                content = content.replace(/<li>(.*?)<\/li>/gs, function(match) {
+                    if (match.includes('<li>•') || match.includes('<li>-')) {
+                        return '<ul>' + match;
+                    }
+                    return match;
+                });
+                content = content.replace(/<\/li>\n<ul>/g, '</li><ul>');
+                content = content.replace(/(<\/li>)(?!\n<li>)/g, '$1</ul>');
+                
+                // Add paragraph tags for better spacing
+                content = content.replace(/\n\n(.*?)\n\n/g, '</p><p>$1</p><p>');
+                
+                // Wrap in a paragraph if not already
+                if (!content.startsWith('<p>')) {
+                    content = '<p>' + content + '</p>';
+                }
+                
+                return content;
+            }
+            
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Helper to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+        
+        function askAboutCompany(companyName) {
+            const chatInput = document.getElementById('chat-input');
+            chatInput.value = `Tell me about ${companyName}`;
+            document.getElementById('send-button').click();
+        }
+        
+        function askSuggestion(button) {
+            const chatInput = document.getElementById('chat-input');
+            chatInput.value = button.textContent;
+            document.getElementById('send-button').click();
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
