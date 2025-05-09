@@ -67,13 +67,21 @@ A Django-based application for researching, analyzing, and comparing companies w
    ```bash
    python manage.py createsuperuser
    ```
-
-7. Run the development server:
+7. Make sure Redis is running:
+   ```bash
+   redis-server
+   ```
+8. Run the development server:
    ```bash
    python manage.py runserver
    ```
 
-8. Access the application at http://127.0.0.1:8000/
+9. Start the Huey task queue for background processing:
+   ```bash
+   ./manage.py run_huey --workers 4
+   ```
+
+10. Access the application at http://127.0.0.1:8000/
 
 ## Usage
 
